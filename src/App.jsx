@@ -24,8 +24,9 @@ function App() {
   `;
 
   const { error, data } = useQuery(GET_POSTS, { variables: { count: 50 } });
+  const dataToUse = data ? data : [];
+  const allPostsData = dataToUse?.allPosts;
 
-  const allPostsData = data?.allPosts;
   console.log("allPostsData", allPostsData);
   const createdAt = allPostsData?.map((post) => post.createdAt);
   console.log("createdAt", createdAt);
@@ -36,14 +37,24 @@ function App() {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    const formattedAndPadded = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+
+    return formattedAndPadded;
   });
+
+  const arrayOfObjects = [];
+
+  for (const date of formattedDate) {
+    console.log("date", date);
+    arrayOfObjects.push({ date: date });
+  }
+  console.log("obj", arrayOfObjects);
 
   console.log("formattedDate", formattedDate);
 
   const sortByMonth = formattedDate?.sort((a, b) => {
     const aMonth = a.split("-")[1];
-    console.log("aMonth", aMonth);
+    // console.log("aMonth", aMonth);
     const bMonth = b.split("-")[1];
     return aMonth - bMonth;
   });
@@ -52,7 +63,10 @@ function App() {
 
   return (
     <div className="App">
-      <ParentSize>{({ width, height }) => <Example width={width} height={height} />}</ParentSize>,
+      {error && <p>Error</p>}
+      <ParentSize>
+        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
+      </ParentSize>
     </div>
   );
 }

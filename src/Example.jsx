@@ -10,55 +10,62 @@ import { timeParse, timeFormat } from "d3-time-format";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
+import { allPostsData } from "./App";
 
-const purple1 = "#6c5efb";
-const purple2 = "#c998ff";
-export const purple3 = "#a44afe";
-export const background = "#eaedff";
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
-const tooltipStyles = {
-  ...defaultStyles,
-  minWidth: 60,
-  backgroundColor: "rgba(0,0,0,0.9)",
-  color: "white",
-};
 
-const data = cityTemperature.slice(0, 12);
-const keys = Object.keys(data[0]).filter((d) => d !== "date");
+export default function Example({ width, height, events = false, margin = defaultMargin, data }) {
+  console.log(data);
+  const purple1 = "#6c5efb";
+  const purple2 = "#c998ff";
+  const purple3 = "#a44afe";
+  const background = "#eaedff";
 
-const temperatureTotals = data.reduce((allTotals, currentDate) => {
-  const totalTemperature = keys.reduce((dailyTotal, k) => {
-    dailyTotal += Number(currentDate[k]);
-    return dailyTotal;
-  }, 0);
-  allTotals.push(totalTemperature);
-  return allTotals;
-}, []);
+  const tooltipStyles = {
+    ...defaultStyles,
+    minWidth: 60,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    color: "white",
+  };
+  const keys = Object.keys(data[0]).filter(
+    (d) => d !== "__typename" && d !== "id" && d !== "title" && d !== "body" && d !== "published" && d !== "author"
+  );
 
-const parseDate = timeParse("%Y-%m-%d");
-const format = timeFormat("%b %d");
-const formatDate = (date) => format(parseDate(date));
+  //   console.log("keys", keys);
 
-// accessors
-const getDate = (d) => d.date;
+  const temperatureTotals = data.reduce((allTotals, currentDate) => {
+    const totalTemperature = keys.reduce((dailyTotal, k) => {
+      dailyTotal += Number(currentDate[k]);
+      return dailyTotal;
+    }, 0);
+    allTotals.push(totalTemperature);
+    return allTotals;
+  }, []);
 
-// scales
-const dateScale = scaleBand({
-  domain: data.map(getDate),
-  padding: 0.2,
-});
-const temperatureScale = scaleLinear({
-  domain: [0, Math.max(...temperatureTotals)],
-  nice: true,
-});
-const colorScale = scaleOrdinal({
-  domain: keys,
-  range: [purple1, purple2, purple3],
-});
+  const parseDate = timeParse("%Y-%m-%d");
+  const format = timeFormat("%b %d");
+  const formatDate = (date) => format(parseDate(date));
 
-let tooltipTimeout;
+  // accessors
+  const getDate = (d) => d.date;
 
-export default function Example({ width, height, events = false, margin = defaultMargin }) {
+  // scales
+  const dateScale = scaleBand({
+    domain: data.map(getDate),
+    padding: 0.2,
+  });
+
+  const temperatureScale = scaleLinear({
+    domain: [0, Math.max(...temperatureTotals)],
+    nice: true,
+  });
+  const colorScale = scaleOrdinal({
+    domain: keys,
+    range: [purple1, purple2, purple3],
+  });
+
+  let tooltipTimeout;
+
   const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip();
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
