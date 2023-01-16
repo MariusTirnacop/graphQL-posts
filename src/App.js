@@ -1,6 +1,8 @@
 import "./App.css";
 import { gql, useQuery } from "@apollo/client";
-import axios from "axios";
+import ParentSize from "@visx/responsive/lib/components/ParentSize";
+
+import Example from "./Example";
 
 function App() {
   const GET_POSTS = gql`
@@ -21,44 +23,7 @@ function App() {
     }
   `;
 
-  const endpoint = "https://fakerql.goosfraba.ro/graphql";
-  const headers = {
-    "content-type": "application/json",
-  };
-  const graphqlQuery = {
-    operationName: "allPosts",
-    query: `
-    query allPosts($count: Int) {
-      allPosts(count: $count) {
-        id
-        title
-        body
-        published
-        createdAt
-        author {
-          id
-          firstName
-          lastName
-          avatar
-        }
-      }
-    }
-  `,
-    variables: { count: 40 },
-  };
-
-  const response = axios({
-    url: endpoint,
-    method: "post",
-    headers: headers,
-    data: graphqlQuery,
-  });
-
-  console.log(response.data); // data
-  console.log(response.errors); // errors if any
-
-  const { error, data } = useQuery(GET_POSTS, { variables: { count: 40 } });
-  console.log(data?.allPosts);
+  const { error, data } = useQuery(GET_POSTS, { variables: { count: 50 } });
 
   const allPostsData = data?.allPosts;
   console.log("allPostsData", allPostsData);
@@ -85,11 +50,9 @@ function App() {
 
   console.log("sortByMonth", sortByMonth);
 
-  // console.log("error", error);
-
   return (
     <div className="App">
-      <p>hi</p>
+      <ParentSize>{({ width, height }) => <Example width={width} height={height} />}</ParentSize>,
     </div>
   );
 }
