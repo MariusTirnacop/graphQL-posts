@@ -14,8 +14,9 @@ import { allPostsData } from "./App";
 
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 
-export default function Example({ width, height, events = false, margin = defaultMargin, data }) {
+export default function Example({ width, height, events = false, margin = defaultMargin, data, formattedDate }) {
   console.log(data);
+  console.log("in example", formattedDate);
   const purple1 = "#6c5efb";
   const purple2 = "#c998ff";
   const purple3 = "#a44afe";
@@ -33,30 +34,28 @@ export default function Example({ width, height, events = false, margin = defaul
 
   //   console.log("keys", keys);
 
-  const temperatureTotals = data.reduce((allTotals, currentDate) => {
-    const totalTemperature = keys.reduce((dailyTotal, k) => {
-      dailyTotal += Number(currentDate[k]);
-      return dailyTotal;
-    }, 0);
-    allTotals.push(totalTemperature);
-    return allTotals;
-  }, []);
+  const totalPosts = data?.length;
+  console.log("totalPosts", totalPosts);
 
-  const parseDate = timeParse("%Y-%m-%d");
-  const format = timeFormat("%b %d");
+  const parseDate = timeParse("%b");
+  const format = timeFormat("%b");
   const formatDate = (date) => format(parseDate(date));
+
+  const parsedDates = formattedDate.map((date) => formatDate(date));
+  console.log("parsedDates", parsedDates);
 
   // accessors
   const getDate = (d) => d.date;
 
   // scales
   const dateScale = scaleBand({
-    domain: data.map(getDate),
+    domain: formattedDate.map(getDate),
     padding: 0.2,
   });
 
   const temperatureScale = scaleLinear({
-    domain: [0, Math.max(...temperatureTotals)],
+    // scale -> need to get max value of posts in the day
+    domain: [0, Math.max(...data)],
     nice: true,
   });
   const colorScale = scaleOrdinal({

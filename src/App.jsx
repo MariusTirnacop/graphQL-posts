@@ -42,15 +42,50 @@ function App() {
     return formattedAndPadded;
   });
 
-  const arrayOfObjects = [];
+  // console.log("formattedDatee", formattedDate);
 
-  for (const date of formattedDate) {
-    console.log("date", date);
-    arrayOfObjects.push({ date: date });
-  }
-  console.log("obj", arrayOfObjects);
+  // const checkIfExists = (array, value) => {
+  //   const day = value.split("-")[2];
+  //   const month = value.split("-")[1];
 
-  console.log("formattedDate", formattedDate);
+  //   // if the
+
+  //   console.log("filteredArray", filteredArray);
+
+  //   return filteredArray.length > 0;
+  // };
+
+  // const uniqueDates = [];
+  // for (const date of formattedDate) {
+  //   console.log("date", date);
+  // }
+
+  const groupedDates = formattedDate.reduce((acc, date) => {
+    const month = date.slice(5, 7);
+    if (!acc[month]) {
+      acc[month] = [];
+    }
+    acc[month].push(date);
+    return acc;
+  }, {});
+
+  console.log("groupedDates", groupedDates);
+
+  const arrayOfObjects = Object.entries(groupedDates).map(([month, dates]) => ({ month, dates }));
+  console.log("arrayofobj", arrayOfObjects);
+
+  const sortedArray = arrayOfObjects.sort((a, b) => a.month - b.month);
+  console.log("sortedArray", sortedArray);
+
+  // console.log("uniqueDates", uniqueDates);
+
+  // const arrayOfObjects = [];
+
+  // for (const date of formattedDate) {
+  //   console.log("date", date);
+  //   arrayOfObjects.push({ date: date });
+  // }
+  // console.log("obj", arrayOfObjects);
 
   const sortByMonth = formattedDate?.sort((a, b) => {
     const aMonth = a.split("-")[1];
@@ -65,7 +100,7 @@ function App() {
     <div className="App">
       {error && <p>Error</p>}
       <ParentSize>
-        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
+        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={sortedArray} />}
       </ParentSize>
     </div>
   );
