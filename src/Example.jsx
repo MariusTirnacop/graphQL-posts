@@ -78,7 +78,7 @@ export default function Example({ width, height, events = false, margin = defaul
       const month = date.slice(5, 7);
       // console.log("month", month);
       const result = monthCounts[month]++;
-      console.log("result", result);
+      // console.log("result", result);
     });
 
     const keys = Object.keys(monthCounts);
@@ -93,7 +93,7 @@ export default function Example({ width, height, events = false, margin = defaul
   }
 
   const count = formattedDate.reduce((acc, date) => {
-    const month = date.substring(5, 7);
+    const month = `0${date.substring(5, 7)}`.slice(-2);
     if (!acc[month]) {
       acc[month] = 0;
     }
@@ -101,17 +101,17 @@ export default function Example({ width, height, events = false, margin = defaul
     return acc;
   }, {});
 
-  console.log("each month count", count);
+  const sortedCount = Object.entries(count)
+    .sort((a, b) => a[0] - b[0])
+    .reduce((acc, [month, count]) => {
+      acc[month] = count;
+      return acc;
+    }, {});
+  console.log("sortedCount", sortedCount);
 
-  const monthCounts = countPostsPerMonth(formattedDate);
-  console.log("monthCounts", monthCounts);
+  const sliceFirstThree = Object.values(count).slice(0, 3);
 
-  console.log("keys", Object.keys(monthCounts));
-  console.log("values", Object.values(monthCounts));
-
-  const sliceFirstThree = Object.values(monthCounts).slice(0, 3);
-
-  const sliceTheRest = Object.values(monthCounts).slice(3);
+  const sliceTheRest = Object.values(count).slice(3);
   const newKeysArr = [...sliceTheRest, ...sliceFirstThree];
   console.log("newKeysArr", newKeysArr);
 
