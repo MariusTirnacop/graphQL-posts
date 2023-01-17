@@ -13,12 +13,6 @@ function App() {
         body
         published
         createdAt
-        author {
-          id
-          firstName
-          lastName
-          avatar
-        }
       }
     }
   `;
@@ -42,7 +36,7 @@ function App() {
     return formattedAndPadded;
   });
 
-  // console.log("formattedDatee", formattedDate);
+  console.log("formattedDatee", formattedDate);
 
   // const checkIfExists = (array, value) => {
   //   const day = value.split("-")[2];
@@ -100,7 +94,7 @@ function App() {
     <div className="App">
       {error && <p>Error</p>}
       <ParentSize>
-        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={sortedArray} />}
+        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
       </ParentSize>
     </div>
   );

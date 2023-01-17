@@ -20,12 +20,6 @@ client
           body
           published
           createdAt
-          author {
-            id
-            firstName
-            lastName
-            avatar
-          }
         }
       }
     `,

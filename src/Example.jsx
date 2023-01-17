@@ -37,19 +37,26 @@ export default function Example({ width, height, events = false, margin = defaul
   const totalPosts = data?.length;
   console.log("totalPosts", totalPosts);
 
-  const parseDate = timeParse("%b");
-  const format = timeFormat("%b");
-  const formatDate = (date) => format(parseDate(date));
+  const parseDate = timeParse("%Y-%m-%d");
+  const format = timeFormat("%b %d");
+  // const formatDate = (date) => format(parseDate(date));
 
-  const parsedDates = formattedDate.map((date) => formatDate(date));
+  const parsedDates = formattedDate.map((date) => new Date(date).getMonth());
+  const uniqueDates = Array.from(new Set(parsedDates));
+  console.log("uniqueDates", uniqueDates);
   console.log("parsedDates", parsedDates);
+
+  // const formatDate = (date) => format(parseDate(uniqueDates[date - 1]));
+  // const formatDate = (date) => `${date}`;
+
+  const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
 
   // accessors
   const getDate = (d) => d.date;
 
   // scales
   const dateScale = scaleBand({
-    domain: formattedDate.map(getDate),
+    domain: uniqueDates,
     padding: 0.2,
   });
 
@@ -140,6 +147,7 @@ export default function Example({ width, height, events = false, margin = defaul
           top={yMax + margin.top}
           scale={dateScale}
           tickFormat={formatDate}
+          // tickFormat={(value) => value}
           stroke={purple3}
           tickStroke={purple3}
           tickLabelProps={() => ({
