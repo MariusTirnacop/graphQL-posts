@@ -22,76 +22,6 @@ export default function Example({ width, height, events = false, margin = defaul
   const purple3 = "#a44afe";
   const background = "#eaedff";
 
-  const tooltipStyles = {
-    ...defaultStyles,
-    minWidth: 60,
-    backgroundColor: "rgba(0,0,0,0.9)",
-    color: "white",
-  };
-  const keys = Object.keys(data[0]).filter(
-    (d) => d !== "__typename" && d !== "id" && d !== "title" && d !== "body" && d !== "published" && d !== "author"
-  );
-
-  //   console.log("keys", keys);
-
-  const parseDate = timeParse("%Y-%m-%d");
-  const format = timeFormat("%b %d");
-  // const formatDate = (date) => format(parseDate(date));
-
-  const parsedDates = formattedDate.map((date) => new Date(date).getMonth());
-  const uniqueDates = Array.from(new Set(parsedDates));
-  console.log("uniqueDates", uniqueDates);
-  console.log("parsedDates", parsedDates);
-
-  // const formatDate = (date) => format(parseDate(uniqueDates[date - 1]));
-  // const formatDate = (date) => `${date}`;
-
-  const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
-
-  // accessors
-  const getDate = (d) => d.date;
-
-  // scales
-  const dateScale = scaleBand({
-    domain: uniqueDates,
-    padding: 0.2,
-  });
-
-  function countPostsPerMonth(dates) {
-    const monthCounts = {
-      "01": 0,
-      "02": 0,
-      "03": 0,
-      "04": 0,
-      "05": 0,
-      "06": 0,
-      "07": 0,
-      "08": 0,
-      "09": 0,
-      10: 0,
-      11: 0,
-      12: 0,
-    };
-
-    dates.forEach((date) => {
-      // console.log("date in for each", date);
-      const month = date.slice(5, 7);
-      // console.log("month", month);
-      const result = monthCounts[month]++;
-      // console.log("result", result);
-    });
-
-    const keys = Object.keys(monthCounts);
-    const sorted = keys.sort((a, b) => a - b);
-
-    const sortedMonthCounts = {};
-    sorted.forEach((key) => {
-      sortedMonthCounts[key] = monthCounts[key];
-    });
-
-    return sortedMonthCounts;
-  }
-
   const count = formattedDate.reduce((acc, date) => {
     const month = `0${date.substring(5, 7)}`.slice(-2);
     if (!acc[month]) {
@@ -117,12 +47,49 @@ export default function Example({ width, height, events = false, margin = defaul
 
   const temperatureScale = scaleLinear({
     // scale -> need to get max value of posts in the day
-    domain: [0, Math.max(...data)],
+    domain: [0, Math.max(...newKeysArr)],
     nice: true,
   });
+
+  const tooltipStyles = {
+    ...defaultStyles,
+    minWidth: 60,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    color: "white",
+  };
+  const logme = Object.values(sortedCount);
+  console.log("logme", logme);
+
+  const keys = Object.values(sortedCount).map((value) => value);
+
   const colorScale = scaleOrdinal({
     domain: keys,
     range: [purple1, purple2, purple3],
+  });
+
+  //   console.log("keys", keys);
+
+  const parseDate = timeParse("%Y-%m-%d");
+  const format = timeFormat("%b %d");
+  // const formatDate = (date) => format(parseDate(date));
+
+  const parsedDates = formattedDate.map((date) => new Date(date).getMonth());
+  const uniqueDates = Array.from(new Set(parsedDates));
+  console.log("uniqueDates", uniqueDates);
+  console.log("parsedDates", parsedDates);
+
+  // const formatDate = (date) => format(parseDate(uniqueDates[date - 1]));
+  // const formatDate = (date) => `${date}`;
+
+  const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
+
+  // accessors
+  const getDate = (d) => d.date;
+
+  // scales
+  const dateScale = scaleBand({
+    domain: uniqueDates,
+    padding: 0,
   });
 
   let tooltipTimeout;
@@ -231,9 +198,7 @@ export default function Example({ width, height, events = false, margin = defaul
             <strong>{tooltipData.key}</strong>
           </div>
           <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-          <div>
-            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-          </div>
+          <div>{/* <small>{formatDate(getDate(tooltipData.bar.data))}</small> */}</div>
         </TooltipInPortal>
       )}
     </div>
