@@ -74,8 +74,11 @@ export default function Example({ width, height, events = false, margin = defaul
     };
 
     dates.forEach((date) => {
+      // console.log("date in for each", date);
       const month = date.slice(5, 7);
-      monthCounts[month]++;
+      // console.log("month", month);
+      const result = monthCounts[month]++;
+      console.log("result", result);
     });
 
     const keys = Object.keys(monthCounts);
@@ -88,6 +91,17 @@ export default function Example({ width, height, events = false, margin = defaul
 
     return sortedMonthCounts;
   }
+
+  const count = formattedDate.reduce((acc, date) => {
+    const month = date.substring(5, 7);
+    if (!acc[month]) {
+      acc[month] = 0;
+    }
+    acc[month]++;
+    return acc;
+  }, {});
+
+  console.log("each month count", count);
 
   const monthCounts = countPostsPerMonth(formattedDate);
   console.log("monthCounts", monthCounts);
@@ -149,38 +163,37 @@ export default function Example({ width, height, events = false, margin = defaul
           <BarStack data={data} keys={keys} x={getDate} xScale={dateScale} yScale={temperatureScale} color={colorScale}>
             {(barStacks) =>
               barStacks.map((barStack) =>
-                barStack.bars.map(
-                  (bar) => console.log(bar)
-                  // <rect
-                  //   key={`bar-stack-${barStack.index}-${bar.index}`}
-                  //   x={bar.x}
-                  //   y={bar.y}
-                  //   height={bar.height}
-                  //   width={bar.width}
-                  //   fill={bar.color}
-                  //   onClick={() => {
-                  //     if (events) alert(`clicked: ${JSON.stringify(bar)}`);
-                  //   }}
-                  //   onMouseLeave={() => {
-                  //     tooltipTimeout = window.setTimeout(() => {
-                  //       hideTooltip();
-                  //     }, 300);
-                  //   }}
-                  //   onMouseMove={(event) => {
-                  //     if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                  //     // TooltipInPortal expects coordinates to be relative to containerRef
-                  //     // localPoint returns coordinates relative to the nearest SVG, which
-                  //     // is what containerRef is set to in this example.
-                  //     const eventSvgCoords = localPoint(event);
-                  //     const left = bar.x + bar.width / 2;
-                  //     showTooltip({
-                  //       tooltipData: bar,
-                  //       tooltipTop: eventSvgCoords?.y,
-                  //       tooltipLeft: left,
-                  //     });
-                  //   }}
-                  // />
-                )
+                barStack.bars.map((bar) => (
+                  <rect
+                    key={`bar-stack-${barStack.index}-${bar.index}`}
+                    x={bar.x}
+                    y={bar.y}
+                    height={bar.height}
+                    width={bar.width}
+                    fill={bar.color}
+                    onClick={() => {
+                      if (events) alert(`clicked: ${JSON.stringify(bar)}`);
+                    }}
+                    onMouseLeave={() => {
+                      tooltipTimeout = window.setTimeout(() => {
+                        hideTooltip();
+                      }, 300);
+                    }}
+                    onMouseMove={(event) => {
+                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                      // TooltipInPortal expects coordinates to be relative to containerRef
+                      // localPoint returns coordinates relative to the nearest SVG, which
+                      // is what containerRef is set to in this example.
+                      const eventSvgCoords = localPoint(event);
+                      const left = bar.x + bar.width / 2;
+                      showTooltip({
+                        tooltipData: bar,
+                        tooltipTop: eventSvgCoords?.y,
+                        tooltipLeft: left,
+                      });
+                    }}
+                  />
+                ))
               )
             }
           </BarStack>
