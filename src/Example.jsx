@@ -34,9 +34,6 @@ export default function Example({ width, height, events = false, margin = defaul
 
   //   console.log("keys", keys);
 
-  const totalPosts = data?.length;
-  console.log("totalPosts", totalPosts);
-
   const parseDate = timeParse("%Y-%m-%d");
   const format = timeFormat("%b %d");
   // const formatDate = (date) => format(parseDate(date));
@@ -59,6 +56,50 @@ export default function Example({ width, height, events = false, margin = defaul
     domain: uniqueDates,
     padding: 0.2,
   });
+
+  function countPostsPerMonth(dates) {
+    const monthCounts = {
+      "01": 0,
+      "02": 0,
+      "03": 0,
+      "04": 0,
+      "05": 0,
+      "06": 0,
+      "07": 0,
+      "08": 0,
+      "09": 0,
+      10: 0,
+      11: 0,
+      12: 0,
+    };
+
+    dates.forEach((date) => {
+      const month = date.slice(5, 7);
+      monthCounts[month]++;
+    });
+
+    const keys = Object.keys(monthCounts);
+    const sorted = keys.sort((a, b) => a - b);
+
+    const sortedMonthCounts = {};
+    sorted.forEach((key) => {
+      sortedMonthCounts[key] = monthCounts[key];
+    });
+
+    return sortedMonthCounts;
+  }
+
+  const monthCounts = countPostsPerMonth(formattedDate);
+  console.log("monthCounts", monthCounts);
+
+  console.log("keys", Object.keys(monthCounts));
+  console.log("values", Object.values(monthCounts));
+
+  const sliceFirstThree = Object.values(monthCounts).slice(0, 3);
+
+  const sliceTheRest = Object.values(monthCounts).slice(3);
+  const newKeysArr = [...sliceTheRest, ...sliceFirstThree];
+  console.log("newKeysArr", newKeysArr);
 
   const temperatureScale = scaleLinear({
     // scale -> need to get max value of posts in the day
@@ -108,37 +149,38 @@ export default function Example({ width, height, events = false, margin = defaul
           <BarStack data={data} keys={keys} x={getDate} xScale={dateScale} yScale={temperatureScale} color={colorScale}>
             {(barStacks) =>
               barStacks.map((barStack) =>
-                barStack.bars.map((bar) => (
-                  <rect
-                    key={`bar-stack-${barStack.index}-${bar.index}`}
-                    x={bar.x}
-                    y={bar.y}
-                    height={bar.height}
-                    width={bar.width}
-                    fill={bar.color}
-                    onClick={() => {
-                      if (events) alert(`clicked: ${JSON.stringify(bar)}`);
-                    }}
-                    onMouseLeave={() => {
-                      tooltipTimeout = window.setTimeout(() => {
-                        hideTooltip();
-                      }, 300);
-                    }}
-                    onMouseMove={(event) => {
-                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                      // TooltipInPortal expects coordinates to be relative to containerRef
-                      // localPoint returns coordinates relative to the nearest SVG, which
-                      // is what containerRef is set to in this example.
-                      const eventSvgCoords = localPoint(event);
-                      const left = bar.x + bar.width / 2;
-                      showTooltip({
-                        tooltipData: bar,
-                        tooltipTop: eventSvgCoords?.y,
-                        tooltipLeft: left,
-                      });
-                    }}
-                  />
-                ))
+                barStack.bars.map(
+                  (bar) => console.log(bar)
+                  // <rect
+                  //   key={`bar-stack-${barStack.index}-${bar.index}`}
+                  //   x={bar.x}
+                  //   y={bar.y}
+                  //   height={bar.height}
+                  //   width={bar.width}
+                  //   fill={bar.color}
+                  //   onClick={() => {
+                  //     if (events) alert(`clicked: ${JSON.stringify(bar)}`);
+                  //   }}
+                  //   onMouseLeave={() => {
+                  //     tooltipTimeout = window.setTimeout(() => {
+                  //       hideTooltip();
+                  //     }, 300);
+                  //   }}
+                  //   onMouseMove={(event) => {
+                  //     if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  //     // TooltipInPortal expects coordinates to be relative to containerRef
+                  //     // localPoint returns coordinates relative to the nearest SVG, which
+                  //     // is what containerRef is set to in this example.
+                  //     const eventSvgCoords = localPoint(event);
+                  //     const left = bar.x + bar.width / 2;
+                  //     showTooltip({
+                  //       tooltipData: bar,
+                  //       tooltipTop: eventSvgCoords?.y,
+                  //       tooltipLeft: left,
+                  //     });
+                  //   }}
+                  // />
+                )
               )
             }
           </BarStack>
