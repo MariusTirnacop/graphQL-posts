@@ -54,7 +54,7 @@ function App() {
   //   console.log("date", date);
   // }
 
-  const groupedDates = formattedDate.reduce((acc, date) => {
+  const groupedDates = formattedDate?.reduce((acc, date) => {
     const month = date.slice(5, 7);
     if (!acc[month]) {
       acc[month] = [];
@@ -65,7 +65,7 @@ function App() {
 
   console.log("groupedDates", groupedDates);
 
-  const arrayOfObjects = Object.entries(groupedDates).map(([month, dates]) => ({ month, dates }));
+  const arrayOfObjects = Object.entries(groupedDates ? groupedDates : {})?.map(([month, dates]) => ({ month, dates }));
   console.log("arrayofobj", arrayOfObjects);
 
   const sortedArray = arrayOfObjects.sort((a, b) => a.month - b.month);
@@ -93,9 +93,10 @@ function App() {
   return (
     <div className="App">
       {error && <p>Error</p>}
-      <ParentSize>
-        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
-      </ParentSize>
+      {/* <ParentSize> */}
+
+      <Example width={400} height={400} data={allPostsData} formattedDate={formattedDate} />
+      {/* </ParentSize> */}
     </div>
   );
 }
