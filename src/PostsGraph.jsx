@@ -1,29 +1,26 @@
 import React, { useMemo } from "react";
-import { Bar, BarStack } from "@visx/shape";
-import { SeriesPoint } from "@visx/shape/lib/types";
+import { Bar } from "@visx/shape";
 import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
-import cityTemperature, { CityTemperature } from "@visx/mock-data/lib/mocks/cityTemperature";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
-import { timeParse, timeFormat } from "d3-time-format";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
-import { allPostsData } from "./App";
 
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
-export default function PostsGraph({ width, height, events = false, margin = defaultMargin, data, formattedDate }) {
-  const count = formattedDate?.reduce((acc, date) => {
-    const month = `0${date.substring(5, 7)}`.slice(-2);
-    if (!acc[month]) {
-      acc[month] = 0;
+export default function PostsGraph({ width, height, margin = defaultMargin, data }) {
+  const count = data?.reduce((acc, date) => {
+    if (!acc[date]) {
+      acc[date] = 0;
     }
-    acc[month]++;
+    acc[date]++;
     return acc;
   }, {});
+
+  console.log("count", count);
 
   const monthNames = new Intl.DateTimeFormat("en-US", { month: "short" });
 
@@ -32,7 +29,7 @@ export default function PostsGraph({ width, height, events = false, margin = def
 
   const sortedCount = Object.entries(count ? count : {})
     ?.sort((a, b) => a[0] - b[0])
-    .reduce((acc, [month, count]) => {
+    ?.reduce((acc, [month, count]) => {
       acc[monthNames.format(new Date(`2019-${month}-01`))] = count;
       return acc;
     }, {});
@@ -91,11 +88,6 @@ export default function PostsGraph({ width, height, events = false, margin = def
     domain: ["number of posts"],
     range: ["rgba(23, 233, 217, 0.5)"],
   });
-
-  const parsedDates = formattedDate?.map((date) => new Date(date).getMonth());
-  const uniqueDates = Array.from(new Set(parsedDates));
-  // console.log("uniqueDates", uniqueDates);
-  // console.log("parsedDates", parsedDates);
 
   let tooltipTimeout;
 

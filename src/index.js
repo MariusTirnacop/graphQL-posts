@@ -15,10 +15,6 @@ client
     query: gql`
       query allPosts($count: Int) {
         allPosts(count: $count) {
-          id
-          title
-          body
-          published
           createdAt
         }
       }
