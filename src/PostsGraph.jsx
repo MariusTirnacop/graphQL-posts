@@ -15,14 +15,7 @@ import { allPostsData } from "./App";
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
-export default function Example({ width, height, events = false, margin = defaultMargin, data, formattedDate }) {
-  // console.log(data);
-  // console.log("in example", formattedDate);
-  const purple1 = "#6c5efb";
-  const purple2 = "#c998ff";
-  const purple3 = "#a44afe";
-  const background = "#eaedff";
-
+export default function PostsGraph({ width, height, events = false, margin = defaultMargin, data, formattedDate }) {
   const count = formattedDate?.reduce((acc, date) => {
     const month = `0${date.substring(5, 7)}`.slice(-2);
     if (!acc[month]) {
@@ -86,22 +79,14 @@ export default function Example({ width, height, events = false, margin = defaul
   const newKeysArr = [...sliceTheRest, ...sliceFirstThree];
   console.log("newKeysArr", newKeysArr);
 
-  const temperatureScale = scaleLinear({
-    domain: [0, Math.max(...newKeysArr)],
-    nice: true,
-  });
-
   const tooltipStyles = {
     ...defaultStyles,
     minWidth: 60,
     backgroundColor: "rgba(0,0,0,0.9)",
     color: "white",
   };
-  const logme = Object.values(sortedCount);
-  console.log("logme", logme);
 
-  const keys = Object.values(sortedCount).map((value) => value);
-
+  // scales
   const colorScale = scaleOrdinal({
     domain: ["number of posts"],
     range: ["rgba(23, 233, 217, 0.5)"],
@@ -109,95 +94,23 @@ export default function Example({ width, height, events = false, margin = defaul
 
   const parsedDates = formattedDate?.map((date) => new Date(date).getMonth());
   const uniqueDates = Array.from(new Set(parsedDates));
-  console.log("uniqueDates", uniqueDates);
-  console.log("parsedDates", parsedDates);
-
-  // const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
-  // console.log("formatDate", formatDate(new Date()));
-  // accessors
-  const getDate = (d) => d.date;
-
-  // scales
-  const dateScale = scaleBand({
-    domain: uniqueDates,
-    padding: 0,
-  });
+  // console.log("uniqueDates", uniqueDates);
+  // console.log("parsedDates", parsedDates);
 
   let tooltipTimeout;
 
   const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip();
 
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    // TooltipInPortal is rendered in a separate child of <body /> and positioned
-    // with page coordinates which should be updated on scroll. consider using
-    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
+  const { TooltipInPortal } = useTooltipInPortal({
     scroll: true,
   });
 
-  if (width < 10) return null;
-
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax + 2, 0]);
-  console.log("mathmax", ...newKeysArr);
 
   return width < 10 ? null : (
     <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {/* <svg ref={containerRef} width={width} height={800}>
-        <rect x={0} y={0} width={width} height={800} fill={background} rx={14} />
-        <Grid
-          top={margin.top}
-          left={margin.left}
-          xScale={dateScale}
-          yScale={temperatureScale}
-          width={xMax}
-          height={yMax}
-          stroke="black"
-          strokeOpacity={0.1}
-          xOffset={dateScale.bandwidth() / 2}
-        />
-        <Group top={margin.top}>
-          <BarStack data={data} keys={keys} x={getDate} xScale={dateScale} yScale={temperatureScale} color={colorScale}>
-            {(barStacks) =>
-              barStacks.map((barStack) =>
-                barStack.bars.map((bar) => (
-                  <rect
-                    key={`bar-stack-${barStack.index}-${bar.index}`}
-                    x={bar.x}
-                    y={bar.y}
-                    height={bar.height}
-                    width={bar.width}
-                    fill={bar.color}
-                    onClick={() => {
-                      if (events) alert(`clicked: ${JSON.stringify(bar)}`);
-                    }}
-                    onMouseLeave={() => {
-                      tooltipTimeout = window.setTimeout(() => {
-                        hideTooltip();
-                      }, 300);
-                    }}
-                    onMouseMove={(event) => {
-                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                      // TooltipInPortal expects coordinates to be relative to containerRef
-                      // localPoint returns coordinates relative to the nearest SVG, which
-                      // is what containerRef is set to in this example.
-                      const eventSvgCoords = localPoint(event);
-                      const left = bar.x + bar.width / 2;
-                      showTooltip({
-                        tooltipData: bar,
-                        tooltipTop: eventSvgCoords?.y,
-                        tooltipLeft: left,
-                      });
-                    }}
-                  />
-                ))
-              )
-            }
-          </BarStack>
-        </Group>
-        
-      </svg> */}
       <svg width={width} height={height} style={{ overflow: "visible" }}>
-        {/* <GradientTealBlue id="teal" /> */}
         <Grid
           top={margin.top + 20}
           left={margin.left}
@@ -213,18 +126,14 @@ export default function Example({ width, height, events = false, margin = defaul
         <Group top={verticalMargin / 2}>
           {values?.map((d) => {
             // console.log(d);
-            const letter = getMonth(d);
+            const month = getMonth(d);
             const barWidth = xScale.bandwidth();
             const barHeight = yMax - (yScale(getValue(d)) ?? 0.00001);
-            const barX = xScale(letter);
+            const barX = xScale(month);
             const barY = yMax - barHeight;
-            // console.log("barX", barX);
-            // console.log("barY", barY);
-            // console.log("Bar width", barWidth);
-            // console.log("barHeight", barHeight);
             return (
               <Bar
-                key={`bar-${letter}`}
+                key={`bar-${month}`}
                 x={barX}
                 y={barY}
                 width={barWidth}
@@ -240,9 +149,6 @@ export default function Example({ width, height, events = false, margin = defaul
                 }}
                 onMouseMove={(event) => {
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                  // TooltipInPortal expects coordinates to be relative to containerRef
-                  // localPoint returns coordinates relative to the nearest SVG, which
-                  // is what containerRef is set to in this example.
                   const eventSvgCoords = localPoint(event);
                   const left = barX;
                   showTooltip({
@@ -255,6 +161,9 @@ export default function Example({ width, height, events = false, margin = defaul
             );
           })}
         </Group>
+
+        {/* Axis */}
+
         <AxisBottom
           top={yMax + margin.top + 20}
           scale={xScale}
@@ -281,6 +190,8 @@ export default function Example({ width, height, events = false, margin = defaul
           tickFormat={(value) => `${value}`}
         />
       </svg>
+
+      {/* Legend */}
       <div
         style={{
           position: "absolute",
@@ -293,6 +204,8 @@ export default function Example({ width, height, events = false, margin = defaul
       >
         <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
       </div>
+
+      {/* Tooltip */}
 
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>

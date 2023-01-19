@@ -2,7 +2,9 @@ import "./App.css";
 import { gql, useQuery } from "@apollo/client";
 import { ParentSize } from "@visx/responsive";
 
-import Example from "./Example";
+import PostsGraph from "./PostsGraph";
+import { HashLoader } from "react-spinners";
+import RingLoader from "react-spinners/RingLoader";
 
 function App() {
   const GET_POSTS = gql`
@@ -17,7 +19,7 @@ function App() {
     }
   `;
 
-  const { error, data } = useQuery(GET_POSTS, { variables: { count: 50 } });
+  const { error, data, loading } = useQuery(GET_POSTS, { variables: { count: 50 } });
   const dataToUse = data ? data : [];
   const allPostsData = dataToUse?.allPosts;
 
@@ -38,22 +40,6 @@ function App() {
 
   console.log("formattedDatee", formattedDate);
 
-  // const checkIfExists = (array, value) => {
-  //   const day = value.split("-")[2];
-  //   const month = value.split("-")[1];
-
-  //   // if the
-
-  //   console.log("filteredArray", filteredArray);
-
-  //   return filteredArray.length > 0;
-  // };
-
-  // const uniqueDates = [];
-  // for (const date of formattedDate) {
-  //   console.log("date", date);
-  // }
-
   const groupedDates = formattedDate?.reduce((acc, date) => {
     const month = date.slice(5, 7);
     if (!acc[month]) {
@@ -71,19 +57,8 @@ function App() {
   const sortedArray = arrayOfObjects.sort((a, b) => a.month - b.month);
   console.log("sortedArray", sortedArray);
 
-  // console.log("uniqueDates", uniqueDates);
-
-  // const arrayOfObjects = [];
-
-  // for (const date of formattedDate) {
-  //   console.log("date", date);
-  //   arrayOfObjects.push({ date: date });
-  // }
-  // console.log("obj", arrayOfObjects);
-
   const sortByMonth = formattedDate?.sort((a, b) => {
     const aMonth = a.split("-")[1];
-    // console.log("aMonth", aMonth);
     const bMonth = b.split("-")[1];
     return aMonth - bMonth;
   });
@@ -92,10 +67,19 @@ function App() {
 
   return (
     <div className="App">
-      {error && <p>Error</p>}
-      <ParentSize>
-        {({ width, height }) => <Example width={width - 200} height={height} data={allPostsData} formattedDate={formattedDate} />}
-      </ParentSize>
+      {error ? <p>There was an error, please try again.</p> : null}
+      {loading ? (
+        <div className="loading-container">
+          <p>Loading graph...</p>
+          <RingLoader color="rgba(6, 31, 71, 1)" size={150} />
+        </div>
+      ) : (
+        <ParentSize>
+          {({ width, height }) => (
+            <PostsGraph width={width - 200} height={height} data={allPostsData} formattedDate={formattedDate} />
+          )}
+        </ParentSize>
+      )}
     </div>
   );
 }
