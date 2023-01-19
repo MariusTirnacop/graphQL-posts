@@ -94,7 +94,7 @@ function App() {
     <div className="App">
       {error && <p>Error</p>}
       <ParentSize>
-        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
+        {({ width, height }) => <Example width={width - 200} height={height} data={allPostsData} formattedDate={formattedDate} />}
       </ParentSize>
     </div>
   );

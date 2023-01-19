@@ -3,7 +3,7 @@ import { Bar, BarStack } from "@visx/shape";
 import { SeriesPoint } from "@visx/shape/lib/types";
 import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
-import { AxisBottom } from "@visx/axis";
+import { AxisBottom, AxisLeft } from "@visx/axis";
 import cityTemperature, { CityTemperature } from "@visx/mock-data/lib/mocks/cityTemperature";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { timeParse, timeFormat } from "d3-time-format";
@@ -16,8 +16,8 @@ const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
 export default function Example({ width, height, events = false, margin = defaultMargin, data, formattedDate }) {
-  console.log(data);
-  console.log("in example", formattedDate);
+  // console.log(data);
+  // console.log("in example", formattedDate);
   const purple1 = "#6c5efb";
   const purple2 = "#c998ff";
   const purple3 = "#a44afe";
@@ -62,7 +62,7 @@ export default function Example({ width, height, events = false, margin = defaul
       {
         range: [0, xMax],
         round: true,
-        domain: values.map(getMonth),
+        domain: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         padding: 0.4,
       },
       [xMax]
@@ -87,7 +87,6 @@ export default function Example({ width, height, events = false, margin = defaul
   console.log("newKeysArr", newKeysArr);
 
   const temperatureScale = scaleLinear({
-    // scale -> need to get max value of posts in the day
     domain: [0, Math.max(...newKeysArr)],
     nice: true,
   });
@@ -104,25 +103,16 @@ export default function Example({ width, height, events = false, margin = defaul
   const keys = Object.values(sortedCount).map((value) => value);
 
   const colorScale = scaleOrdinal({
-    domain: keys,
-    range: [purple1, purple2, purple3],
+    domain: ["number of posts"],
+    range: ["rgba(23, 233, 217, 0.5)"],
   });
-
-  //   console.log("keys", keys);
-
-  const parseDate = timeParse("%Y-%m-%d");
-  const format = timeFormat("%b %d");
-  // const formatDate = (date) => format(parseDate(date));
 
   const parsedDates = formattedDate?.map((date) => new Date(date).getMonth());
   const uniqueDates = Array.from(new Set(parsedDates));
   console.log("uniqueDates", uniqueDates);
   console.log("parsedDates", parsedDates);
 
-  // const formatDate = (date) => format(parseDate(uniqueDates[date - 1]));
-  // const formatDate = (date) => `${date}`;
-
-  const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
+  // const formatDate = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(0, date));
   // console.log("formatDate", formatDate(new Date()));
   // accessors
   const getDate = (d) => d.date;
@@ -146,11 +136,12 @@ export default function Example({ width, height, events = false, margin = defaul
 
   if (width < 10) return null;
 
-  dateScale.rangeRound([0, xMax]);
-  temperatureScale.range([yMax, 0]);
+  xScale.rangeRound([0, xMax]);
+  yScale.range([yMax + 2, 0]);
+  console.log("mathmax", ...newKeysArr);
 
   return width < 10 ? null : (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
       {/* <svg ref={containerRef} width={width} height={800}>
         <rect x={0} y={0} width={width} height={800} fill={background} rx={14} />
         <Grid
@@ -205,26 +196,26 @@ export default function Example({ width, height, events = false, margin = defaul
         </Group>
         
       </svg> */}
-      <svg width={width} height={height}>
+      <svg width={width} height={height} style={{ overflow: "visible" }}>
         {/* <GradientTealBlue id="teal" /> */}
         <Grid
           top={margin.top + 20}
           left={margin.left}
-          xScale={dateScale}
-          yScale={temperatureScale}
+          xScale={xScale}
+          yScale={yScale}
           width={xMax}
           height={yMax}
           stroke="black"
           strokeOpacity={0.1}
-          xOffset={dateScale.bandwidth() / 2}
+          xOffset={xScale.bandwidth() / 1.19}
         />
         <rect width={width} height={height} fill="url(#teal)" rx={14} />
         <Group top={verticalMargin / 2}>
           {values?.map((d) => {
-            console.log(d);
+            // console.log(d);
             const letter = getMonth(d);
             const barWidth = xScale.bandwidth();
-            const barHeight = yMax - (yScale(getValue(d)) ?? 0);
+            const barHeight = yMax - (yScale(getValue(d)) ?? 0.00001);
             const barX = xScale(letter);
             const barY = yMax - barHeight;
             // console.log("barX", barX);
@@ -266,16 +257,28 @@ export default function Example({ width, height, events = false, margin = defaul
         </Group>
         <AxisBottom
           top={yMax + margin.top + 20}
-          scale={dateScale}
-          tickFormat={formatDate}
-          // tickFormat={(value) => value}
-          stroke={purple3}
-          tickStroke={purple3}
+          scale={xScale}
+          stroke={"#000000"}
+          tickStroke={"#000000"}
           tickLabelProps={() => ({
-            fill: purple3,
+            fill: "#000000",
             fontSize: 11,
             textAnchor: "middle",
           })}
+        />
+        <AxisLeft
+          top={margin.top + 20}
+          left={margin.left}
+          scale={yScale}
+          numTicks={Math.max(...newKeysArr)}
+          stroke={"#000000"}
+          tickStroke={"#000000"}
+          tickLabelProps={() => ({
+            fill: "#000000",
+            fontSize: 11,
+            textAnchor: "end",
+          })}
+          tickFormat={(value) => `${value}`}
         />
       </svg>
       <div
@@ -293,13 +296,10 @@ export default function Example({ width, height, events = false, margin = defaul
 
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-          <div style={{ color: colorScale(tooltipData) }}>
-            {/* <div> */}
+          <div style={{ color: "rgba(23, 233, 217, 0.5)" }}>
             <strong>{tooltipData.key}</strong>
           </div>
           <div>Number of posts: {tooltipData.value}</div>
-
-          <div>{/* <small>{formatDate(getDate(tooltipData.key))}</small> */}</div>
         </TooltipInPortal>
       )}
     </div>
