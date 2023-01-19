@@ -227,10 +227,10 @@ export default function Example({ width, height, events = false, margin = defaul
             const barHeight = yMax - (yScale(getValue(d)) ?? 0);
             const barX = xScale(letter);
             const barY = yMax - barHeight;
-            console.log("barX", barX);
-            console.log("barY", barY);
-            console.log("Bar width", barWidth);
-            console.log("barHeight", barHeight);
+            // console.log("barX", barX);
+            // console.log("barY", barY);
+            // console.log("Bar width", barWidth);
+            // console.log("barHeight", barHeight);
             return (
               <Bar
                 key={`bar-${letter}`}
@@ -241,6 +241,24 @@ export default function Example({ width, height, events = false, margin = defaul
                 fill="rgba(23, 233, 217, .5)"
                 onClick={(events) => {
                   if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
+                }}
+                onMouseLeave={() => {
+                  tooltipTimeout = window.setTimeout(() => {
+                    hideTooltip();
+                  }, 300);
+                }}
+                onMouseMove={(event) => {
+                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  // TooltipInPortal expects coordinates to be relative to containerRef
+                  // localPoint returns coordinates relative to the nearest SVG, which
+                  // is what containerRef is set to in this example.
+                  const eventSvgCoords = localPoint(event);
+                  const left = barX;
+                  showTooltip({
+                    tooltipData: d,
+                    tooltipTop: eventSvgCoords?.y,
+                    tooltipLeft: left,
+                  });
                 }}
               />
             );
@@ -275,11 +293,13 @@ export default function Example({ width, height, events = false, margin = defaul
 
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-          <div style={{ color: colorScale(tooltipData.key) }}>
+          <div style={{ color: colorScale(tooltipData) }}>
+            {/* <div> */}
             <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-          <div>{/* <small>{formatDate(getDate(tooltipData.bar.data))}</small> */}</div>
+          <div>Number of posts: {tooltipData.value}</div>
+
+          <div>{/* <small>{formatDate(getDate(tooltipData.key))}</small> */}</div>
         </TooltipInPortal>
       )}
     </div>

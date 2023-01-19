@@ -1,6 +1,6 @@
 import "./App.css";
 import { gql, useQuery } from "@apollo/client";
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
+import { ParentSize } from "@visx/responsive";
 
 import Example from "./Example";
 
@@ -93,10 +93,9 @@ function App() {
   return (
     <div className="App">
       {error && <p>Error</p>}
-      {/* <ParentSize> */}
-
-      <Example width={400} height={400} data={allPostsData} formattedDate={formattedDate} />
-      {/* </ParentSize> */}
+      <ParentSize>
+        {({ width, height }) => <Example width={width} height={height} data={allPostsData} formattedDate={formattedDate} />}
+      </ParentSize>
     </div>
   );
 }
