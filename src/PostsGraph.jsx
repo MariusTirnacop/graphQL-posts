@@ -7,7 +7,8 @@ import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
-
+import { Text } from "@visx/text";
+import { COUNT as TotalData } from "./App";
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
@@ -152,6 +153,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           <stop stopColor="#96050d" offset="50%" />
           <stop stopColor="#550a0a" offset="100%" />
         </linearGradient>
+
         <Grid
           top={margin.top + 20}
           left={margin.left}
@@ -163,7 +165,12 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           strokeOpacity={0.1}
           xOffset={xScale.bandwidth() / 1.19}
         />
+        <Text verticalAnchor="middle" fontSize={20} textAnchor="middle" x={width - 50} y={margin.top + 10}>
+          {`Data Count: ${TotalData}`}
+        </Text>
+
         <rect width={width} height={height} fill="url(#teal)" rx={14} />
+
         <Group top={verticalMargin / 2}>
           {values?.map((d) => {
             // console.log(d);
@@ -215,6 +222,8 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
             fontSize: 11,
             textAnchor: "middle",
           })}
+          label={"Month"}
+          labelClassName="axis-label"
         />
         <AxisLeft
           top={margin.top + 20}
@@ -229,6 +238,9 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
             textAnchor: "end",
           })}
           tickFormat={(value) => `${value}`}
+          label={"Number of posts"}
+          labelOffset={14}
+          labelClassName="axis-label"
         />
       </svg>
 
@@ -236,11 +248,12 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
       <div
         style={{
           position: "absolute",
-          top: margin.top / 2 - 10,
+          top: margin.top / 3 - 10,
           width: "100%",
           display: "flex",
           justifyContent: "center",
-          fontSize: "14px",
+          alignItems: "center",
+          fontSize: "18px",
         }}
       >
         <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />

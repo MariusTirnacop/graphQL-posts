@@ -2,8 +2,8 @@ html,
 body,
 #root {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
   line-height: 2em;
 }
 
@@ -23,12 +23,10 @@ body,
 }
 
 #gradient-id {
-  background-image: linear-gradient(
-    to right top,
-    #1f3705,
-    #2b5a06,
-    #318007,
-    #2fa80e,
-    #14d31c
-  );
+  background-image: linear-gradient(to right top, #1f3705, #2b5a06, #318007, #2fa80e, #14d31c);
+}
+
+.axis-label {
+  font-size: 14px;
+  color: #fff;
 }

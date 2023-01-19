@@ -3,10 +3,9 @@ import { gql, useQuery } from "@apollo/client";
 import { ParentSize } from "@visx/responsive";
 
 import PostsGraph from "./PostsGraph";
-import { HashLoader } from "react-spinners";
 import RingLoader from "react-spinners/RingLoader";
 
-const COUNT = Math.floor(Math.random() * (200 - 100 + 1) + 100);
+export const COUNT = Math.floor(Math.random() * (200 - 100 + 1) + 100);
 
 function App() {
   const GET_POSTS = gql`
@@ -45,7 +44,7 @@ function App() {
           <RingLoader color="rgba(6, 31, 71, 1)" size={150} />
         </div>
       ) : (
-        <ParentSize>{({ width, height }) => <PostsGraph width={width - 200} height={height} data={formattedDate} />}</ParentSize>
+        <ParentSize>{({ width, height }) => <PostsGraph width={width - 100} height={height} data={formattedDate} />}</ParentSize>
       )}
     </div>
   );
