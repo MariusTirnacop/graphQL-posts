@@ -12,17 +12,46 @@ const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
 export default function PostsGraph({ width, height, margin = defaultMargin, data }) {
-  const count = data?.reduce((acc, date) => {
-    if (!acc[date]) {
-      acc[date] = 0;
+  const count = data?.reduce(
+    (acc, date) => {
+      if (!acc[date]) {
+        acc[date] = 0;
+      }
+      acc[date]++;
+      return acc;
+    },
+    {
+      "01": 0,
+      "02": 0,
+      "03": 0,
+      "04": 0,
+      "05": 0,
+      "06": 0,
+      "07": 0,
+      "08": 0,
+      "09": 0,
+      10: 0,
+      11: 0,
+      12: 0,
     }
-    acc[date]++;
-    return acc;
-  }, {});
+  );
 
-  console.log("count", count);
+  console.log("count  ", count);
 
-  const monthNames = new Intl.DateTimeFormat("en-US", { month: "short" });
+  const monthsName = {
+    "01": "Jan",
+    "02": "Feb",
+    "03": "Mar",
+    "04": "Apr",
+    "05": "May",
+    "06": "Jun",
+    "07": "Jul",
+    "08": "Aug",
+    "09": "Sep",
+    10: "Oct",
+    11: "Nov",
+    12: "Dec",
+  };
 
   const getMonth = (d) => d.key;
   const getValue = (d) => d.value;
@@ -30,10 +59,9 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
   const sortedCount = Object.entries(count ? count : {})
     ?.sort((a, b) => a[0] - b[0])
     ?.reduce((acc, [month, count]) => {
-      acc[monthNames.format(new Date(`2019-${month}-01`))] = count;
+      acc[monthsName[month]] = count;
       return acc;
     }, {});
-  console.log("sortedCount", sortedCount);
 
   const values = Object.entries(sortedCount).map(([month, count]) => {
     return {
@@ -45,7 +73,8 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
   // bounds
   const xMax = width;
   const yMax = height - margin.top - 100;
-
+  const DOMAIN_MAX = Math.max(...values.map(getValue));
+  const DELIMITTER = Math.floor(DOMAIN_MAX / 2);
   // scales, memoize for performance
   const xScale = useMemo(() =>
     scaleBand(
@@ -63,18 +92,13 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
       {
         range: [yMax, 0],
         round: true,
-        domain: [0, Math.max(...values.map(getValue))],
+        domain: [0, DOMAIN_MAX],
       },
       [yMax]
     )
   );
 
   console.log("values", values);
-  const sliceFirstThree = Object.values(count ? count : {})?.slice(0, 3);
-
-  const sliceTheRest = Object.values(count ? count : {})?.slice(3);
-  const newKeysArr = [...sliceTheRest, ...sliceFirstThree];
-  console.log("newKeysArr", newKeysArr);
 
   const tooltipStyles = {
     ...defaultStyles,
@@ -85,8 +109,11 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
 
   // scales
   const colorScale = scaleOrdinal({
-    domain: ["number of posts"],
-    range: ["rgba(23, 233, 217, 0.5)"],
+    domain: [`Posts > ${DELIMITTER}`, `Posts <= ${DELIMITTER}`],
+    range: [
+      "linear-gradient(to bottom, #00da1e, #18c219, #20ab15, #239412, #237e0f)",
+      "linear-gradient(to bottom, #da0000, #b80209, #96050d, #75090e, #550a0a)",
+    ],
   });
 
   let tooltipTimeout;
@@ -97,12 +124,34 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
     scroll: true,
   });
 
+  console.log(values.map((e) => e.value));
+
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax + 2, 0]);
 
   return width < 10 ? null : (
-    <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <svg width={width} height={height} style={{ overflow: "visible" }}>
+        <linearGradient id="gradient" gradientTransform="rotate(90)">
+          <stop stopColor="#00da1e" offset="0%" />
+          <stop stopColor="#17b718" offset="25%" />
+          <stop stopColor="#1c9512" offset="50%" />
+          <stop stopColor="#17550a" offset="100%" />
+        </linearGradient>
+
+        <linearGradient id="gradient2" gradientTransform="rotate(90)">
+          <stop stopColor="#da0000" offset="0%" />
+          <stop stopColor="#d80209" offset="25%" />
+          <stop stopColor="#96050d" offset="50%" />
+          <stop stopColor="#550a0a" offset="100%" />
+        </linearGradient>
         <Grid
           top={margin.top + 20}
           left={margin.left}
@@ -120,17 +169,17 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
             // console.log(d);
             const month = getMonth(d);
             const barWidth = xScale.bandwidth();
-            const barHeight = yMax - (yScale(getValue(d)) ?? 0.00001);
+            const barHeight = yMax - (yScale(getValue(d)) ?? 0);
             const barX = xScale(month);
             const barY = yMax - barHeight;
             return (
               <Bar
                 key={`bar-${month}`}
                 x={barX}
-                y={barY}
+                y={barHeight <= 0 ? barY - 10 : barY}
                 width={barWidth}
-                height={barHeight < 0 ? 0 : barHeight}
-                fill="rgba(23, 233, 217, .5)"
+                height={barHeight <= 0 ? 10 : barHeight}
+                fill={`url(${d.value > DELIMITTER ? "#gradient" : "#gradient2"})`}
                 onClick={(events) => {
                   if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
                 }}
@@ -171,7 +220,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           top={margin.top + 20}
           left={margin.left}
           scale={yScale}
-          numTicks={Math.max(...newKeysArr)}
+          numTicks={Math.max(...values.map((e) => e.value))}
           stroke={"#000000"}
           tickStroke={"#000000"}
           tickLabelProps={() => ({
@@ -201,7 +250,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
 
       {tooltipOpen && tooltipData && (
         <TooltipInPortal top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-          <div style={{ color: "rgba(23, 233, 217, 0.5)" }}>
+          <div style={{ color: tooltipData.value > DELIMITTER ? "green" : "red" }}>
             <strong>{tooltipData.key}</strong>
           </div>
           <div>Number of posts: {tooltipData.value}</div>

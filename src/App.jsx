@@ -6,6 +6,8 @@ import PostsGraph from "./PostsGraph";
 import { HashLoader } from "react-spinners";
 import RingLoader from "react-spinners/RingLoader";
 
+const COUNT = Math.floor(Math.random() * (200 - 100 + 1) + 100);
+
 function App() {
   const GET_POSTS = gql`
     query allPosts($count: Int) {
@@ -15,7 +17,7 @@ function App() {
     }
   `;
 
-  const { error, data, loading } = useQuery(GET_POSTS, { variables: { count: 50 } });
+  const { error, data, loading } = useQuery(GET_POSTS, { variables: { count: COUNT } });
   const dataToUse = data ? data : [];
   const allPostsData = dataToUse?.allPosts;
 
