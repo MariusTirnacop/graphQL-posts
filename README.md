@@ -5,7 +5,3 @@
 ### Tools and Technologies used
 
 - **Tools**: NPM, React, GraphQL, Apollo, Visx, React Toastify, React Spinners
-
-#### Subsubsubtitle
-
-##### Subsubsubsubtitle
