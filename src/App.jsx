@@ -1,8 +1,9 @@
 import "./App.css";
 import { gql, useQuery } from "@apollo/client";
 import { ParentSize } from "@visx/responsive";
+import { ToastContainer } from "react-toastify";
 
-import PostsGraph from "./PostsGraph";
+import PostsGraph from "./PostsGraph/PostsGraph";
 import RingLoader from "react-spinners/RingLoader";
 
 export const COUNT = Math.floor(Math.random() * (200 - 100 + 1) + 100);
@@ -20,23 +21,31 @@ function App() {
   const dataToUse = data ? data : [];
   const allPostsData = dataToUse?.allPosts;
 
-  // console.log("allPostsData", allPostsData);
   const createdAt = allPostsData?.map((post) => post.createdAt);
-  // console.log("createdAt", createdAt);
 
   const formattedDate = createdAt?.map((dateCreatedAt) => {
     const date = new Date(Number(dateCreatedAt));
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
-    // console.log("year", typeof year);
     const formattedAndPadded = month.toString().padStart(2, "0");
     if (year === 2019) return formattedAndPadded;
   });
 
-  console.log("formattedDatee", formattedDate);
-
   return (
     <div className="App">
+      <ToastContainer
+        position="top-center"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       {error ? <p>There was an error, please try again.</p> : null}
       {loading ? (
         <div className="loading-container">

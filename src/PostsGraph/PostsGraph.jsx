@@ -8,7 +8,11 @@ import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
 import { Text } from "@visx/text";
-import { COUNT as TotalData } from "./App";
+import { COUNT as TotalData } from "../App";
+import { toast } from "react-toastify";
+import { monthsName, MONTHS, defaultMonthValues } from "../utils/utils";
+import { gradientGreen, gradientRed } from "../utils/utils";
+
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
@@ -21,39 +25,10 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
       acc[date]++;
       return acc;
     },
-    {
-      "01": 0,
-      "02": 0,
-      "03": 0,
-      "04": 0,
-      "05": 0,
-      "06": 0,
-      "07": 0,
-      "08": 0,
-      "09": 0,
-      10: 0,
-      11: 0,
-      12: 0,
-    }
+    { ...defaultMonthValues }
   );
 
-  console.log("count  ", count);
-
-  const monthsName = {
-    "01": "Jan",
-    "02": "Feb",
-    "03": "Mar",
-    "04": "Apr",
-    "05": "May",
-    "06": "Jun",
-    "07": "Jul",
-    "08": "Aug",
-    "09": "Sep",
-    10: "Oct",
-    11: "Nov",
-    12: "Dec",
-  };
-
+  // accessors
   const getMonth = (d) => d.key;
   const getValue = (d) => d.value;
 
@@ -76,13 +51,14 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
   const yMax = height - margin.top - 100;
   const DOMAIN_MAX = Math.max(...values.map(getValue));
   const DELIMITTER = Math.floor(DOMAIN_MAX / 2);
+
   // scales, memoize for performance
   const xScale = useMemo(() =>
     scaleBand(
       {
         range: [0, xMax],
         round: true,
-        domain: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        domain: MONTHS,
         padding: 0.4,
       },
       [xMax]
@@ -99,7 +75,10 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
     )
   );
 
-  console.log("values", values);
+  const colorScale = scaleOrdinal({
+    domain: [`Posts > ${DELIMITTER}`, `Posts <= ${DELIMITTER}`],
+    range: [gradientGreen, gradientRed],
+  });
 
   const tooltipStyles = {
     ...defaultStyles,
@@ -108,15 +87,6 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
     color: "white",
   };
 
-  // scales
-  const colorScale = scaleOrdinal({
-    domain: [`Posts > ${DELIMITTER}`, `Posts <= ${DELIMITTER}`],
-    range: [
-      "linear-gradient(to bottom, #00da1e, #18c219, #20ab15, #239412, #237e0f)",
-      "linear-gradient(to bottom, #da0000, #b80209, #96050d, #75090e, #550a0a)",
-    ],
-  });
-
   let tooltipTimeout;
 
   const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip();
@@ -124,8 +94,6 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
   const { TooltipInPortal } = useTooltipInPortal({
     scroll: true,
   });
-
-  console.log(values.map((e) => e.value));
 
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax + 2, 0]);
@@ -140,14 +108,14 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
       }}
     >
       <svg width={width} height={height} style={{ overflow: "visible" }}>
-        <linearGradient id="gradient" gradientTransform="rotate(90)">
+        <linearGradient id="greenGradient" gradientTransform="rotate(90)">
           <stop stopColor="#00da1e" offset="0%" />
           <stop stopColor="#17b718" offset="25%" />
           <stop stopColor="#1c9512" offset="50%" />
           <stop stopColor="#17550a" offset="100%" />
         </linearGradient>
 
-        <linearGradient id="gradient2" gradientTransform="rotate(90)">
+        <linearGradient id="redGradient" gradientTransform="rotate(90)">
           <stop stopColor="#da0000" offset="0%" />
           <stop stopColor="#d80209" offset="25%" />
           <stop stopColor="#96050d" offset="50%" />
@@ -173,7 +141,6 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
 
         <Group top={verticalMargin / 2}>
           {values?.map((d) => {
-            // console.log(d);
             const month = getMonth(d);
             const barWidth = xScale.bandwidth();
             const barHeight = yMax - (yScale(getValue(d)) ?? 0);
@@ -186,9 +153,9 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
                 y={barHeight <= 0 ? barY - 10 : barY}
                 width={barWidth}
                 height={barHeight <= 0 ? 10 : barHeight}
-                fill={`url(${d.value > DELIMITTER ? "#gradient" : "#gradient2"})`}
+                fill={`url(${d.value > DELIMITTER ? "#greenGradient" : "#redGradient"})`}
                 onClick={(events) => {
-                  if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
+                  if (events) toast(`Number of posts in ${d.key}: ${d.value}`);
                 }}
                 onMouseLeave={() => {
                   tooltipTimeout = window.setTimeout(() => {
