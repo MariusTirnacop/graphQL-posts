@@ -1,22 +1,25 @@
-import React, { useMemo } from "react";
-import { Bar } from "@visx/shape";
-import { Group } from "@visx/group";
-import { Grid } from "@visx/grid";
+import React, { useMemo, useEffect, useState } from "react";
+
+// visx packages
 import { AxisBottom, AxisLeft } from "@visx/axis";
-import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
-import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
-import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
+import { Grid } from "@visx/grid";
+import { Group } from "@visx/group";
+import { LegendOrdinal } from "@visx/legend";
+import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
+import { Bar } from "@visx/shape";
 import { Text } from "@visx/text";
-import { COUNT as TotalData } from "../App";
+import { defaultStyles, useTooltip, useTooltipInPortal } from "@visx/tooltip";
+
+// react-toastify
 import { toast } from "react-toastify";
-import { monthsName, MONTHS, defaultMonthValues } from "../utils/utils";
-import { gradientGreen, gradientRed } from "../utils/utils";
+
+import { defaultMonthValues, gradientGreen, gradientRed, MONTHS, monthsName } from "../utils/utils";
 
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
-export default function PostsGraph({ width, height, margin = defaultMargin, data }) {
+export default function PostsGraph({ width, height, margin = defaultMargin, data, countData, handleCountData }) {
   const count = data?.reduce(
     (acc, date) => {
       if (!acc[date]) {
@@ -87,6 +90,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
     color: "white",
   };
 
+  // tooltip handler
   let tooltipTimeout;
 
   const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } = useTooltip();
@@ -122,6 +126,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           <stop stopColor="#550a0a" offset="100%" />
         </linearGradient>
 
+        {/* The grid behind the graph */}
         <Grid
           top={margin.top + 20}
           left={margin.left}
@@ -133,12 +138,15 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           strokeOpacity={0.1}
           xOffset={xScale.bandwidth() / 1.19}
         />
+
+        {/* Title on the right */}
         <Text verticalAnchor="middle" fontSize={20} textAnchor="middle" x={width - 50} y={margin.top + 10}>
-          {`Data Count: ${TotalData}`}
+          {`Data Count: ${countData}`}
         </Text>
 
         <rect width={width} height={height} fill="url(#teal)" rx={14} />
 
+        {/* Graph */}
         <Group top={verticalMargin / 2}>
           {values?.map((d) => {
             const month = getMonth(d);
@@ -192,6 +200,7 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
           label={"Month"}
           labelClassName="axis-label"
         />
+
         <AxisLeft
           top={margin.top + 20}
           left={margin.left}
@@ -224,6 +233,9 @@ export default function PostsGraph({ width, height, margin = defaultMargin, data
         }}
       >
         <LegendOrdinal scale={colorScale} direction="row" labelMargin="0 15px 0 0" />
+        <button className="get-data-btn" onClick={handleCountData}>
+          Get new data
+        </button>
       </div>
 
       {/* Tooltip */}

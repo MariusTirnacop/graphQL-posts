@@ -22,11 +22,36 @@ body,
   gap: 1rem;
 }
 
-#gradient-id {
-  background-image: linear-gradient(to right top, #1f3705, #2b5a06, #318007, #2fa80e, #14d31c);
-}
-
 .axis-label {
   font-size: 14px;
   color: #fff;
+}
+
+.get-data-btn {
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 12px;
+  background-size: 300% 100%;
+  background-image: linear-gradient(to left, #da0000, #d80209, #96050d, #550a0a);
+  border: none;
+}
+
+.get-data-btn:hover {
+  background-position: 100% 0;
+  --moz-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  background-image: linear-gradient(to right, #fed3ce, #485563, #af473c, #550a0a);
+  box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75);
+}
+
+@media screen and (max-width: 768px) {
+  .get-data-btn {
+    padding: 0.5rem 0.5rem;
+  }
 }
