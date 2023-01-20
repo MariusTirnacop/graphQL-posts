@@ -20,6 +20,7 @@ const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
 const verticalMargin = 120;
 
 export default function PostsGraph({ width, height, margin = defaultMargin, data, countData, handleCountData }) {
+  // itterate over data and count the number of posts per month -> if cur month is not in count, it adds with value 0
   const count = data?.reduce(
     (acc, date) => {
       if (!acc[date]) {
